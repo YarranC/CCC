@@ -1,56 +1,48 @@
 # Choose your own path
-# failed j5.3-1 and j5.3-3 test cases
 
 N = int(input())
 
-status = [0 for _ in range(N)]
-path = [1 for _ in range(N)]
-
+visited = [1]
+end = []
+reached = [1]
 table = dict()
+
 for i in range(N):
     line = input().split()
-    table[i+1] = line[1:]
-
-# search path from page, return length of the path
-def search(page):
-    #print(page)
-    # if already tried this page
-    if status[page-1] == 2:
-        return path[page-1]
-    elif status[page-1] == 0:
-        # if new page
-        status[page-1] = 1
-    
-        # if reached end page
-        if len(table[page]) == 0:
-            path[page-1] = 1
-            status[page-1] = 2
-            return path[page-1]
-
-        # if not end page
-        l=[]
-        for i in range(len(table[page])):
-            l.append(search(int(table[page][i])))
-        #print("page", page, l)
-        path[page-1] = min(l)+1
-        status[page-1] = 2
-        return path[page-1]
+    if int(line[0]) == 0:
+        end.append(i+1)
+        if not i+1 in reached:
+            reached.append(i+1)
     else:
-        return N
+        for p in line[1:]:
+            p = int(p)
+            if p != i+1:
+                if not p in reached:
+                    reached.append(p)
+                if table.get(p) == None:
+                   table[p] = [i+1]
+                else:
+                    table[p].append(i+1)
 
-search(1)
+if len(reached) == N:
+    print('Y')
+else:
+    print('N')
 
-#print(status)
-#print(path)
+cnt = 1
+while len(end) >= 1:
 
-for i in range(N):
-    if status[i] == 0:
-        print('N')
-        print(path[0])
-        import sys
-        sys.exit(0)
-
-print('Y')
-print(path[0])
-
-
+    l = []
+    for p in end:
+        if table.get(p) != None:
+            src = table[p]
+            for s in src:
+                if s == 1:
+                    print(cnt+1)
+                    import sys
+                    sys.exit(0)
+                if not s in visited:
+                    visited.append(s)
+                    l.append(s)
+    end = l
+    cnt+=1
