@@ -1,40 +1,33 @@
-# Nailed It! 
-# works for N <= 1000, need to improve time efficiency
+# Nailed It!
 
 N = int(input())
-L = input().split()
+
+board = [0 for _ in range(2000)]
+fence = [0 for _ in range(4000)]
+
+pieces = input().split()
+
+for L in pieces:
+    L = int(L)
+    board[L-1]+=1
+
+for i in range(1999):
+    for j in range(i, 2000):
+        if i == j:
+            fence[i+j+2]+=int(board[i]/2)
+        else:
+            fence[i+j+2]+=min(board[i], board[j])
 
 length = 0
-temp_h = []
-height = dict()
-status = dict()
+count = 0
 
-cnt = 0
-for i in range(N-1):
-    for j in range(i+1, N):
-        h = int(L[i]) + int(L[j])
-        if height.get(h) == None:
-            height[h] = 1
-            status[h] = []
-            status[h].append(i)
-            status[h].append(j)
-            if height[h] == length:
-                cnt+=1
-                temp_h.append(h)
-        else:
-            a = j in status[h]
-            b = i in status[h]
+for l in fence:
+    if l > length:
+        length = l
+        count = 1
+    elif l == length:
+        count += 1
 
-            if not a and not b:
-                height[h]+=1
-                status[h].append(i)
-                status[h].append(j)
-                if height[h] == length:
-                    cnt+=1
-                    temp_h.append(h)
-        if height[h] > length:
-            length = height[h]
-            cnt = 1
-            temp_h = [h]
+print(length, count)
 
-print(length, cnt)
+
