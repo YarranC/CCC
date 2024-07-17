@@ -1,31 +1,54 @@
-## Square Pool
+# Square Pool
 
-N = int(input()) # size of the yard
-M = N # starting with a pool of size of the yard
-    
+n = int(input()) # size of the yard
+T = int(input()) # number of trees
+
+trees = []
 # find the location of all the trees
-trees =[]
-for i in range(int(input())):
+for i in range(T):
     x, y = input().split()
-    trees.append([int(x)-1, int(y)-1])
-trees = sorted(trees)
+    x = int(x)
+    y = int(y)
+    trees.append((x, y))
 
-def check(x, y, s): 
-    for tree in trees:
-        if x <= tree[0] and tree[0] < x+s and y <= tree[1] and tree[1] < y+s:
-            return 1
-    return 0
+# add yard boundary   
+trees.append((0, 0))
+trees.append((n+1, n+1))
 
-f = False
-while M > 0:
-    if f: break
-    for i in range(N-M+1):
-        if f: break
-        for j in range(N-M+1):
-            # check if there is tree in range
-            #print(i,j,M)
-            if check(i, j, M) == 0:
-                print(M)
-                f = True
+# get the coordinates of every pair of trees
+row,  col = set(), set()
+for x, y in trees:
+    for x2, y2 in trees:
+        if x != x2:
+            row.add(tuple(sorted((x, x2))))
+        if y != y2:
+            col.add(tuple(sorted((y, y2))))
+            
+# remove the yard boundary
+trees = trees[:-2]
+
+# Sort by the distance between the two trees
+row = list(sorted(row, key=lambda row: abs(row[0] - row[1]), reverse=True))
+col = list(sorted(col, key=lambda col: abs(col[0] - col[1]), reverse=True))
+
+cnt = []
+for i in range(2):
+    trees = sorted(trees, key=lambda x: x[i])
+
+    for s, e in row if i else col:
+        s2, e2 = 0, abs(s - e)
+        for tree in trees:
+            if i and s < tree[0] < e and s2 < tree[1] < e2:
+                e2 += abs(tree[1] - s2) + 1
+                s2 = tree[1] + 1
+            elif not i and s < tree[1] < e and s2 < tree[0] < e2:
+                e2 += abs(tree[0] - s2) + 1
+                s2 = tree[0] + 1
+
+            if e2 > n + 1:
                 break
-    M-=1 
+        else:
+            cnt.append(abs(s - e) - 1)
+            break
+
+print(max(cnt))
