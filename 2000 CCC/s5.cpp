@@ -1,57 +1,48 @@
 #include <iostream>
-#include <iomanip>
 #include <vector>
-#include <cmath>
-#include <algorithm>
-
-using namespace std;
-
-struct Sheep {
-    double x;
-    double y;
-
-    // Define the equality operator for Sheep
-    bool operator==(const Sheep& other) const {
-        return x == other.x && y == other.y;
-    }
-};
-
-// Comparator function to sort sheep based on their x-coordinate
-bool compareSheep(const Sheep& a, const Sheep& b) {
-    return a.x < b.x;
-}
+#include <iomanip> // for std::fixed and std::setprecision
 
 int main() {
+    std::vector<double> x(100);
+    std::vector<double> y(100);
+    std::vector<bool> out(100, false);  // list of "out" sheep
+
     int n;
-    cin >> n;
-
-    vector<Sheep> sheeps(n);
-    vector<Sheep> eaten;
-
-    for (int i = 0; i < n; ++i) {
-        cin >> sheeps[i].x >> sheeps[i].y;
+    std::cin >> n;
+    for (int i = 0; i < n; i++) {
+        std::cin >> x[i] >> y[i];
     }
 
-    // Sort the sheeps based on their x-coordinate
-    sort(sheeps.begin(), sheeps.end(), compareSheep);
-
-    for (const auto& s : sheeps) {
-        double d = pow(s.y, 2);
-        Sheep e = s;
-        for (const auto& t : sheeps) {
-            double dd = pow(t.x - s.x, 2) + pow(t.y, 2);
-            if (dd < d) {
-                d = dd;
-                e = t;
+    for (int i = 0; i < n; i++) {
+        double left = 0, right = 1000;
+        for (int j = 0; j < n; j++) {
+            if (!out[i] && !out[j] && i != j) {
+                double xm = (x[i] + x[j]) / 2;
+                double ym = (y[i] + y[j]) / 2;
+                double s = (x[i] - x[j]) / (y[j] - y[i]);
+                if (s == 0) {
+                    if (y[i] < y[j])
+                        out[j] = true;
+                    else
+                        out[i] = true;
+                }
+                else {
+                    double p = -ym / s + xm;
+                    if (x[j] < x[i])
+                        left = std::max(p, left);
+                    else
+                        right = std::min(p, right);
+                }
             }
         }
-        if (find(eaten.begin(), eaten.end(), e) == eaten.end()) {
-            eaten.push_back(e);
-        }
+        if (left >= right)
+            out[i] = true;
     }
 
-    for (const auto& s : eaten) {
-        cout << "The sheep at (" << fixed << setprecision(2) << s.x << ", " << s.y << ") might be eaten." << endl;
+    for (int j = 0; j < n; j++) {
+        if (!out[j]) {
+            std::cout << "The sheep at (" << std::fixed << std::setprecision(2) << x[j] << ", " << y[j] << ") might be eaten." << std::endl;
+        }
     }
 
     return 0;
